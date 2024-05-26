@@ -61,6 +61,38 @@ def call_apis_and_store():
             print(f"No deployment ID found for GitHub secret variable '{github_secret_name}'")
 
 
+# def create_db_from_responses():
+#     conn = sqlite3.connect(DATABASE_FILE)
+#     cursor = conn.cursor()
+
+#     for filename in os.listdir(RESPONSES_DIR):
+#         if filename.endswith(".json"):
+#             table_name = filename.split('.')[0]
+#             # Sanitize table name to comply with SQLite's naming rules
+#             table_name = re.sub(r'\W+', '_', table_name)
+#             with open(os.path.join(RESPONSES_DIR, filename), 'r') as f:
+#                 data = json.load(f)
+            
+#             if data and isinstance(data, list) and len(data) > 0:
+#                 # Check if the JSON response is not empty and contains records
+#                 # Extract all keys from the first record
+#                 keys = data[0].keys()
+#                 # Generate column names and types for SQL table creation
+#                 columns = ", ".join([f"{key} TEXT" for key in keys])
+#                 cursor.execute(f"DROP TABLE IF EXISTS '{table_name}'")  # Use single quotes to handle special characters
+#                 cursor.execute(f"CREATE TABLE '{table_name}' ({columns})")  # Use single quotes to handle special characters
+                
+#                 placeholders = ", ".join(["?" for _ in keys])
+#                 for record in data:
+#                     values = tuple(record.get(key, '') for key in keys)  # Use .get() to handle missing keys
+#                     cursor.execute(f"INSERT INTO '{table_name}' VALUES ({placeholders})", values)  # Use single quotes to handle special characters
+#                 print(f"Table '{table_name}' created and data inserted.")
+#             else:
+#                 print(f"No data or empty data to insert for table '{table_name}'.")
+
+#     conn.commit()
+#     conn.close()
+
 def create_db_from_responses():
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
@@ -90,8 +122,10 @@ def create_db_from_responses():
             else:
                 print(f"No data or empty data to insert for table '{table_name}'.")
 
+    # Once all tables are created and data inserted, commit the changes and close the connection
     conn.commit()
     conn.close()
+
 
 
 
