@@ -23,14 +23,32 @@ def get_deployment_ids():
             deployment_ids.append(value)
     return deployment_ids
 
-def call_apis_and_store():
-    deployment_ids = get_deployment_ids()
-    with open(REQUIREMENTS_FILE, 'r') as f:
-        endpoints = f.readlines()
+# def call_apis_and_store():
+#     deployment_ids = get_deployment_ids()
+#     with open(REQUIREMENTS_FILE, 'r') as f:
+#         endpoints = f.readlines()
 
-    for deployment_id in deployment_ids:
-        for endpoint in endpoints:
-            endpoint = endpoint.strip()
+#     for deployment_id in deployment_ids:
+#         for endpoint in endpoints:
+#             endpoint = endpoint.strip()
+#             url = BASE_URL_TEMPLATE.format(deployment_id=deployment_id, endpoint=endpoint)
+#             response = requests.get(url)
+#             if response.status_code == 200:
+#                 file_path = os.path.join(RESPONSES_DIR, f"{endpoint}.json")
+#                 with open(file_path, 'w') as f:
+#                     f.write(response.text)
+#             else:
+#                 print(f"Failed to fetch data from {url}")
+
+
+def call_apis_and_store():
+    with open(REQUIREMENTS_FILE, 'r') as f:
+        lines = f.readlines()
+
+    for line in lines:
+        github_secret_name, endpoint = line.strip().split(',')
+        deployment_id = os.getenv(github_secret_name)
+        if deployment_id:
             url = BASE_URL_TEMPLATE.format(deployment_id=deployment_id, endpoint=endpoint)
             response = requests.get(url)
             if response.status_code == 200:
@@ -39,6 +57,9 @@ def call_apis_and_store():
                     f.write(response.text)
             else:
                 print(f"Failed to fetch data from {url}")
+        else:
+            print(f"No deployment ID found for GitHub secret variable '{github_secret_name}'")
+
 
 def create_db_from_responses():
     conn = sqlite3.connect(DATABASE_FILE)
