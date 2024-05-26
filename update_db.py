@@ -48,14 +48,19 @@ def create_db_from_responses():
             table_name = filename.split('.')[0]
             with open(os.path.join(RESPONSES_DIR, filename), 'r') as f:
                 data = json.load(f)
-
+            
             if data:
-                columns = ", ".join(data[0].keys())
-                cursor.execute(f"CREATE TABLE IF NOT EXISTS {table_name} ({columns})")
+                # Create table with columns based on the keys of the JSON records
+                columns = ", ".join([f"{key} TEXT" for key in data[0].keys()])
+                cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
+                cursor.execute(f"CREATE TABLE {table_name} ({columns})")
+                
+                # Insert data into the table
                 for record in data:
-                    values = ", ".join(f"'{v}'" for v in record.values())
-                    cursor.execute(f"INSERT INTO {table_name} ({columns}) VALUES ({values})")
-
+                    placeholders = ", ".join(["?"] * len(record))
+                    values = tuple(record.values())
+                    cursor.execute(f"INSERT INTO {table_name} VALUES ({placeholders})", values)
+    
     conn.commit()
     conn.close()
 
