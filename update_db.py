@@ -47,24 +47,27 @@ def create_db_from_responses():
     for filename in os.listdir(RESPONSES_DIR):
         if filename.endswith(".json"):
             table_name = filename.split('.')[0]
+            # Sanitize table name to comply with SQLite's naming rules
+            table_name = re.sub(r'\W+', '_', table_name)
             with open(os.path.join(RESPONSES_DIR, filename), 'r') as f:
                 data = json.load(f)
             
             if data:
                 columns = ", ".join([f"{key} TEXT" for key in data[0].keys()])
-                cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
-                cursor.execute(f"CREATE TABLE {table_name} ({columns})")
+                cursor.execute(f"DROP TABLE IF EXISTS '{table_name}'")  # Use single quotes to handle special characters
+                cursor.execute(f"CREATE TABLE '{table_name}' ({columns})")  # Use single quotes to handle special characters
                 
                 placeholders = ", ".join(["?"] * len(data[0]))
                 for record in data:
                     values = tuple(record.values())
-                    cursor.execute(f"INSERT INTO {table_name} VALUES ({placeholders})", values)
+                    cursor.execute(f"INSERT INTO '{table_name}' VALUES ({placeholders})", values)  # Use single quotes to handle special characters
                 print(f"Table '{table_name}' created and data inserted.")
             else:
                 print(f"No data to insert for table '{table_name}'.")
 
     conn.commit()
     conn.close()
+
 
 def update_version_file():
     if not os.path.exists(VERSION_FILE):
