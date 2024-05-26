@@ -73,13 +73,10 @@ def create_db_from_responses():
             with open(os.path.join(RESPONSES_DIR, filename), 'r') as f:
                 data = json.load(f)
             
-            if data:
-                # Check if the JSON response is not empty
-                # Extract all keys from the first record, if available
-                if isinstance(data, list) and data:  # Check if data is a non-empty list
-                    keys = data[0].keys()
-                else:
-                    keys = []
+            if data and isinstance(data, list) and len(data) > 0:
+                # Check if the JSON response is not empty and contains records
+                # Extract all keys from the first record
+                keys = data[0].keys()
                 # Generate column names and types for SQL table creation
                 columns = ", ".join([f"{key} TEXT" for key in keys])
                 cursor.execute(f"DROP TABLE IF EXISTS '{table_name}'")  # Use single quotes to handle special characters
@@ -91,7 +88,7 @@ def create_db_from_responses():
                     cursor.execute(f"INSERT INTO '{table_name}' VALUES ({placeholders})", values)  # Use single quotes to handle special characters
                 print(f"Table '{table_name}' created and data inserted.")
             else:
-                print(f"No data to insert for table '{table_name}'.")
+                print(f"No data or empty data to insert for table '{table_name}'.")
 
     conn.commit()
     conn.close()
