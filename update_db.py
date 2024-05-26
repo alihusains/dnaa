@@ -74,6 +74,7 @@ def create_db_from_responses():
                 data = json.load(f)
             
             if data:
+                # Check if the JSON response is not empty
                 # Extract all keys from the first record
                 keys = data[0].keys()
                 # Generate column names and types for SQL table creation
@@ -83,7 +84,7 @@ def create_db_from_responses():
                 
                 placeholders = ", ".join(["?" for _ in keys])
                 for record in data:
-                    values = tuple(record[key] for key in keys)
+                    values = tuple(record.get(key, '') for key in keys)  # Use .get() to handle missing keys
                     cursor.execute(f"INSERT INTO '{table_name}' VALUES ({placeholders})", values)  # Use single quotes to handle special characters
                 print(f"Table '{table_name}' created and data inserted.")
             else:
