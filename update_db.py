@@ -72,6 +72,7 @@ def create_db_from_responses():
     conn.close()
 
 
+
 def update_version_file():
     if not os.path.exists(VERSION_FILE):
         with open(VERSION_FILE, 'w') as f:
