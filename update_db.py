@@ -3,7 +3,7 @@ import os
 import sqlite3
 import json
 import shutil
-from filecmp import cmp
+import re  # Import the 're' module for regular expressions
 
 # Constants
 BASE_URL_TEMPLATE = 'https://script.google.com/macros/s/{deployment_id}/exec?action=read&sheet={endpoint}'
@@ -67,7 +67,6 @@ def create_db_from_responses():
 
     conn.commit()
     conn.close()
-
 
 def update_version_file():
     if not os.path.exists(VERSION_FILE):
