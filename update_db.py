@@ -101,11 +101,15 @@ def main():
 
     # Step 2: Compare new responses with existing ones
     changes_detected = False
+    existing_files = os.listdir('api_responses_backup')
     for filename in os.listdir(RESPONSES_DIR):
         new_file = os.path.join(RESPONSES_DIR, filename)
         existing_file = os.path.join('api_responses_backup', filename)
 
-        if not os.path.exists(existing_file) or not cmp(new_file, existing_file, shallow=False):
+        # Compare files by size and modification time
+        if not os.path.exists(existing_file) or \
+                (os.path.getsize(new_file) != os.path.getsize(existing_file)) or \
+                (os.path.getmtime(new_file) != os.path.getmtime(existing_file)):
             changes_detected = True
             break
 
@@ -125,6 +129,7 @@ def main():
             shutil.copyfile(new_file, backup_file)
     else:
         print("No changes detected. Database and version file not updated.")
+
 
 if __name__ == "__main__":
     main()
