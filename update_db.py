@@ -63,20 +63,28 @@ def update_version_file():
     if not os.path.exists(VERSION_FILE):
         with open(VERSION_FILE, 'w') as f:
             f.write("1.0.0")
-    else:
-        with open(VERSION_FILE, 'r') as f:
-            version = f.read().strip()
-        major, minor, patch = map(int, version.split('.'))
-        patch += 1
-        if patch >= 10:
-            patch = 0
-            minor += 1
-        if minor >= 10:
-            minor = 0
-            major += 1
-        new_version = f"{major}.{minor}.{patch}"
-        with open(VERSION_FILE, 'w') as f:
-            f.write(new_version)
+        return "1.0.0"
+    
+    with open(VERSION_FILE, 'r') as f:
+        version = f.read().strip()
+    
+    if not version or not all(part.isdigit() for part in version.split('.')):
+        version = "1.0.0"
+    
+    major, minor, patch = map(int, version.split('.'))
+    patch += 1
+    if patch >= 10:
+        patch = 0
+        minor += 1
+    if minor >= 10:
+        minor = 0
+        major += 1
+    new_version = f"{major}.{minor}.{patch}"
+    
+    with open(VERSION_FILE, 'w') as f:
+        f.write(new_version)
+    
+    return new_version
 
 def main():
     # Step 1: Call APIs and store responses
@@ -97,7 +105,8 @@ def main():
         create_db_from_responses()
 
         # Step 4: Update the version file
-        update_version_file()
+        new_version = update_version_file()
+        print(f"Database updated to version {new_version}")
 
         # Backup the current API responses for future comparisons
         os.makedirs('api_responses_backup', exist_ok=True)
