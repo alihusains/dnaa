@@ -3,7 +3,7 @@ import os
 import sqlite3
 import json
 import shutil
-from filecmp import cmp  # Import the cmp function
+from filecmp import cmp
 
 # Constants
 BASE_URL_TEMPLATE = 'https://script.google.com/macros/s/{deployment_id}/exec?action=read&sheet={endpoint}'
