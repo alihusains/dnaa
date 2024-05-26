@@ -34,7 +34,7 @@ def call_apis_and_store():
             url = BASE_URL_TEMPLATE.format(deployment_id=deployment_id, endpoint=endpoint)
             response = requests.get(url)
             if response.status_code == 200:
-                file_path = os.path.join(RESPONSES_DIR, f"{deployment_id}_{endpoint}.json")
+                file_path = os.path.join(RESPONSES_DIR, f"{endpoint}.json")
                 with open(file_path, 'w') as f:
                     f.write(response.text)
             else:
