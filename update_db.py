@@ -53,13 +53,16 @@ def create_db_from_responses():
                 data = json.load(f)
             
             if data:
-                columns = ", ".join([f"{key} TEXT" for key in data[0].keys()])
+                # Extract all keys from the first record
+                keys = data[0].keys()
+                # Generate column names and types for SQL table creation
+                columns = ", ".join([f"{key} TEXT" for key in keys])
                 cursor.execute(f"DROP TABLE IF EXISTS '{table_name}'")  # Use single quotes to handle special characters
                 cursor.execute(f"CREATE TABLE '{table_name}' ({columns})")  # Use single quotes to handle special characters
                 
-                placeholders = ", ".join(["?"] * len(data[0]))
+                placeholders = ", ".join(["?" for _ in keys])
                 for record in data:
-                    values = tuple(record.values())
+                    values = tuple(record[key] for key in keys)
                     cursor.execute(f"INSERT INTO '{table_name}' VALUES ({placeholders})", values)  # Use single quotes to handle special characters
                 print(f"Table '{table_name}' created and data inserted.")
             else:
@@ -67,6 +70,7 @@ def create_db_from_responses():
 
     conn.commit()
     conn.close()
+
 
 def update_version_file():
     if not os.path.exists(VERSION_FILE):
