@@ -2,7 +2,7 @@ import requests
 import os
 import sqlite3
 import json
-from filecmp import cmp
+import shutil
 
 # Constants
 BASE_URL_TEMPLATE = 'https://script.google.com/macros/s/{deployment_id}/exec?action=read&sheet={endpoint}'
@@ -50,17 +50,18 @@ def create_db_from_responses():
                 data = json.load(f)
             
             if data:
-                # Create table with columns based on the keys of the JSON records
                 columns = ", ".join([f"{key} TEXT" for key in data[0].keys()])
                 cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
                 cursor.execute(f"CREATE TABLE {table_name} ({columns})")
                 
-                # Insert data into the table
+                placeholders = ", ".join(["?"] * len(data[0]))
                 for record in data:
-                    placeholders = ", ".join(["?"] * len(record))
                     values = tuple(record.values())
                     cursor.execute(f"INSERT INTO {table_name} VALUES ({placeholders})", values)
-    
+                print(f"Table '{table_name}' created and data inserted.")
+            else:
+                print(f"No data to insert for table '{table_name}'.")
+
     conn.commit()
     conn.close()
 
@@ -118,8 +119,7 @@ def main():
         for filename in os.listdir(RESPONSES_DIR):
             new_file = os.path.join(RESPONSES_DIR, filename)
             backup_file = os.path.join('api_responses_backup', filename)
-            with open(new_file, 'r') as f_new, open(backup_file, 'w') as f_backup:
-                f_backup.write(f_new.read())
+            shutil.copyfile(new_file, backup_file)
     else:
         print("No changes detected. Database and version file not updated.")
 
