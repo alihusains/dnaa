@@ -3,7 +3,7 @@ import os
 import sqlite3
 import json
 import shutil
-import re  # Import the 're' module for regular expressions
+import re
 
 # Constants
 BASE_URL_TEMPLATE = 'https://script.google.com/macros/s/{deployment_id}/exec?action=read&sheet={endpoint}'
@@ -34,7 +34,7 @@ def call_apis_and_store():
                 file_path = os.path.join(RESPONSES_DIR, f"{endpoint}.json")
                 with open(file_path, 'w') as f:
                     f.write(response.text)
-                print(f"Data for endpoint '{endpoint}' fetched and stored.")
+                print(f"Data for endpoint '{endpoint}' fetched and stored in {file_path}.")
             else:
                 print(f"Failed to fetch data from {url}. Status code: {response.status_code}")
         else:
@@ -49,21 +49,42 @@ def create_db_from_responses():
             table_name = filename.split('.')[0]
             table_name = re.sub(r'\W+', '_', table_name)
             with open(os.path.join(RESPONSES_DIR, filename), 'r') as f:
-                data = json.load(f)
+                try:
+                    data = json.load(f)
+                except json.JSONDecodeError:
+                    print(f"Error decoding JSON from file {filename}")
+                    continue
             
-            if data and isinstance(data, list) and len(data) > 0:
-                keys = data[0].keys()
-                columns = ", ".join([f"{key} TEXT" for key in keys])
-                cursor.execute(f"DROP TABLE IF EXISTS '{table_name}'")
-                cursor.execute(f"CREATE TABLE '{table_name}' ({columns})")
-                
-                placeholders = ", ".join(["?" for _ in keys])
-                for record in data:
-                    values = tuple(record.get(key, '') for key in keys)
-                    cursor.execute(f"INSERT INTO '{table_name}' VALUES ({placeholders})", values)
-                print(f"Table '{table_name}' created and data inserted.")
+            if data:
+                if isinstance(data, dict):
+                    if 'data' in data and isinstance(data['data'], list):
+                        data = data['data']
+                    else:
+                        print(f"No valid 'data' field found in file {filename}")
+                        continue
+                elif isinstance(data, list):
+                    if len(data) > 0 and not isinstance(data[0], dict):
+                        print(f"Invalid data structure in file {filename}")
+                        continue
+                else:
+                    print(f"Unknown data structure in file {filename}")
+                    continue
+
+                if len(data) > 0:
+                    keys = data[0].keys()
+                    columns = ", ".join([f"{key} TEXT" for key in keys])
+                    cursor.execute(f"DROP TABLE IF EXISTS '{table_name}'")
+                    cursor.execute(f"CREATE TABLE '{table_name}' ({columns})")
+
+                    placeholders = ", ".join(["?" for _ in keys])
+                    for record in data:
+                        values = tuple(record.get(key, '') for key in keys)
+                        cursor.execute(f"INSERT INTO '{table_name}' VALUES ({placeholders})", values)
+                    print(f"Table '{table_name}' created and data inserted.")
+                else:
+                    print(f"No data or empty data to insert for table '{table_name}'.")
             else:
-                print(f"No data or empty data to insert for table '{table_name}'.")
+                print(f"No data found in file {filename}.")
 
     conn.commit()
     conn.close()
