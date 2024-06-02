@@ -27,15 +27,16 @@ def call_apis_and_store():
         deployment_id = os.getenv(github_secret_name)
         if deployment_id:
             url = BASE_URL_TEMPLATE.format(deployment_id=deployment_id, endpoint=endpoint)
+            print(f"Fetching data from URL: {url}")  # Log the URL being requested
             response = requests.get(url)
-             print(f"'{endpoint}' ==> '{url}'")
             if response.status_code == 200:
+                print(f"Response from {url}: {response.text[:500]}...")  # Print the first 500 characters of the response
                 file_path = os.path.join(RESPONSES_DIR, f"{endpoint}.json")
                 with open(file_path, 'w') as f:
                     f.write(response.text)
                 print(f"Data for endpoint '{endpoint}' fetched and stored.")
             else:
-                print(f"Failed to fetch data from {url}")
+                print(f"Failed to fetch data from {url}. Status code: {response.status_code}")
         else:
             print(f"No deployment ID found for GitHub secret variable '{github_secret_name}'")
 
