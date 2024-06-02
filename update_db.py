@@ -40,6 +40,11 @@ def call_apis_and_store():
         else:
             print(f"No deployment ID found for GitHub secret variable '{github_secret_name}'")
 
+def format_value(value):
+    if isinstance(value, (dict, list)):
+        return json.dumps(value)
+    return str(value)
+
 def create_db_from_responses():
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
@@ -78,7 +83,7 @@ def create_db_from_responses():
 
                     placeholders = ", ".join(["?" for _ in keys])
                     for record in data:
-                        values = tuple(record.get(key, '') for key in keys)
+                        values = tuple(format_value(record.get(key, '')) for key in keys)
                         cursor.execute(f"INSERT INTO '{table_name}' VALUES ({placeholders})", values)
                     print(f"Table '{table_name}' created and data inserted.")
                 else:
