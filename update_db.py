@@ -27,7 +27,6 @@ def call_apis_and_store():
         deployment_id = os.getenv(github_secret_name)
         if deployment_id:
             url = BASE_URL_TEMPLATE.format(deployment_id=deployment_id, endpoint=endpoint)
-             print(f"Data for endpoint '{url}'")
             response = requests.get(url)
              print(f"'{endpoint}' ==> '{url}'")
             if response.status_code == 200:
