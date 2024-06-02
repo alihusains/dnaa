@@ -23,29 +23,6 @@ def get_deployment_ids():
             deployment_ids.append(value)
     return deployment_ids
 
-
-# def call_apis_and_store():
-#     with open(REQUIREMENTS_FILE, 'r') as f:
-#         lines = f.readlines()
-
-#     for line in lines:
-#         github_secret_name, endpoint = line.strip().split(',')
-#         deployment_id = os.getenv(github_secret_name)
-#         if deployment_id:
-#             url = BASE_URL_TEMPLATE.format(deployment_id=deployment_id, endpoint=endpoint)
-#             response = requests.get(url)
-#             if response.status_code == 200:
-#                 file_path = os.path.join(RESPONSES_DIR, f"{endpoint}.json")
-#                 with open(file_path, 'w') as f:
-#                     f.write(response.text)
-#             else:
-#                 print(f"Failed to fetch data from {url}")
-#         else:
-#             print(f"No deployment ID found for GitHub secret variable '{github_secret_name}'")
-
-
-
-
 def call_apis_and_store():
     with open(REQUIREMENTS_FILE, 'r') as f:
         lines = f.readlines()
@@ -57,46 +34,13 @@ def call_apis_and_store():
             url = BASE_URL_TEMPLATE.format(deployment_id=deployment_id, endpoint=endpoint)
             response = requests.get(url)
             if response.status_code == 200:
-                file_path = os.path.join(RESPONSES_DIR, f"/{endpoint}.json")
+                file_path = os.path.join(RESPONSES_DIR, f"{endpoint}.json")
                 with open(file_path, 'w') as f:
                     f.write(response.text)
             else:
                 print(f"Failed to fetch data from {url}")
         else:
             print(f"No deployment ID found for GitHub secret variable '{github_secret_name}'")
-
-
-# def create_db_from_responses():
-#     conn = sqlite3.connect(DATABASE_FILE)
-#     cursor = conn.cursor()
-
-#     for filename in os.listdir(RESPONSES_DIR):
-#         if filename.endswith(".json"):
-#             table_name = filename.split('.')[0]
-#             # Sanitize table name to comply with SQLite's naming rules
-#             table_name = re.sub(r'\W+', '_', table_name)
-#             with open(os.path.join(RESPONSES_DIR, filename), 'r') as f:
-#                 data = json.load(f)
-            
-#             if data and isinstance(data, list) and len(data) > 0:
-#                 # Check if the JSON response is not empty and contains records
-#                 # Extract all keys from the first record
-#                 keys = data[0].keys()
-#                 # Generate column names and types for SQL table creation
-#                 columns = ", ".join([f"{key} TEXT" for key in keys])
-#                 cursor.execute(f"DROP TABLE IF EXISTS '{table_name}'")  # Use single quotes to handle special characters
-#                 cursor.execute(f"CREATE TABLE '{table_name}' ({columns})")  # Use single quotes to handle special characters
-                
-#                 placeholders = ", ".join(["?" for _ in keys])
-#                 for record in data:
-#                     values = tuple(record.get(key, '') for key in keys)  # Use .get() to handle missing keys
-#                     cursor.execute(f"INSERT INTO '{table_name}' VALUES ({placeholders})", values)  # Use single quotes to handle special characters
-#                 print(f"Table '{table_name}' created and data inserted.")
-#             else:
-#                 print(f"No data or empty data to insert for table '{table_name}'.")
-
-#     conn.commit()
-#     conn.close()
 
 def create_db_from_responses():
     conn = sqlite3.connect(DATABASE_FILE)
@@ -130,10 +74,6 @@ def create_db_from_responses():
     # Once all tables are created and data inserted, commit the changes and close the connection
     conn.commit()
     conn.close()
-
-
-
-
 
 def update_version_file():
     if not os.path.exists(VERSION_FILE):
@@ -196,7 +136,6 @@ def main():
             shutil.copyfile(new_file, backup_file)
     else:
         print("No changes detected. Database and version file not updated.")
-
 
 if __name__ == "__main__":
     main()
