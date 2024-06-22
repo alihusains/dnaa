@@ -154,7 +154,6 @@
 # if __name__ == "__main__":
 #     main()
 
-
 import requests
 import os
 import sqlite3
@@ -266,10 +265,10 @@ def update_version_file():
     else:
         major, minor = map(int, version["version"].split('.'))
         minor += 1
-        if minor >= 10:
+        if minor > 99:
             minor = 0
             major += 1
-        version["version"] = f"{major}.{minor}"
+        version["version"] = f"{major}.{minor:02d}"  # Ensure minor is always two digits
     
     with open(VERSION_FILE, 'w') as f:
         json.dump(version, f)
@@ -307,4 +306,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
