@@ -257,8 +257,11 @@ def update_version_file():
             json.dump(version, f)
         return version["version"]
     
-    with open(VERSION_FILE, 'r') as f:
-        version = json.load(f)
+    try:
+        with open(VERSION_FILE, 'r') as f:
+            version = json.load(f)
+    except (json.JSONDecodeError, FileNotFoundError):
+        version = {"version": "1.0"}
     
     if "version" not in version or not re.match(r'^\d+\.\d+$', version["version"]):
         version = {"version": "1.0"}
