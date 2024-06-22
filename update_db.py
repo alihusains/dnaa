@@ -153,7 +153,6 @@
 
 # if __name__ == "__main__":
 #     main()
-
 import requests
 import os
 import sqlite3
@@ -218,7 +217,7 @@ def create_db_from_responses():
             
             if data:
                 if isinstance(data, dict):
-                    if 'data' in data and isinstance(data['data'], list)):
+                    if 'data' in data and isinstance(data['data'], list):
                         data = data['data']
                     else:
                         print(f"No valid 'data' field found in file {filename}")
@@ -277,7 +276,6 @@ def update_version_file():
 
 def compare_and_backup():
     changes_detected = False
-    existing_files = os.listdir(BACKUP_DIR)
     
     for filename in os.listdir(RESPONSES_DIR):
         new_file = os.path.join(RESPONSES_DIR, filename)
