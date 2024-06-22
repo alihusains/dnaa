@@ -1,8 +1,8 @@
 name: Update Database
 
 on:
-  schedule:
-    - cron: "*/60 * * * *"  # Run every 60 minutes
+  # schedule:
+  #   - cron: "*/60 * * * *"  # Run every 60 minutes
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
