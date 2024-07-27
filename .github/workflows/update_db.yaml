@@ -38,3 +38,10 @@ jobs:
             git commit -m "Update database and version"
             git push
           fi
+          
+      - name: Clear jsDelivr cache
+        uses: egad13/purge-jsdelivr-cache@v1
+        with:
+          url: https://cdn.jsdelivr.net/gh/alihusains/dnaaa@latest/database/database.db
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
